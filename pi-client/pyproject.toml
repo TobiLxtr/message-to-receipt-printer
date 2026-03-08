@@ -1,0 +1,16 @@
+[project]
+name = "pi-client"
+version = "0.1.0"
+description = "Client for printing messages on ESC/POS receipt printers"
+requires-python = ">=3.11"
+
+dependencies = [
+    "emoji>=2.15.0",
+    "pillow>=12.1.1",
+    "python-dotenv>=1.2.1",
+    "python-escpos>=3.1",
+    "requests>=2.32.5",
+]
+
+[project.scripts]
+receipt-printer-client = "receipt_printer_client.main:main"
