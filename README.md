@@ -35,9 +35,9 @@ The project uses the Python library:
 ```
 message-to-receipt-printer/
 │
-├─ pi-client/ # Raspberry Pi printing client
-├─ web/ # future web server
-├─ .env.example # environment configuration template
+├─ pi-client/       # Raspberry Pi printing client
+├─ web/             # future web server
+├─ .env.example     # environment configuration template
 └─ README.md
 ````
 
@@ -198,11 +198,7 @@ public_html
    └─ uploads/
 ```
 
-Your event page will then be available at:
-
-```
-[https://your-domain.com/receipt-printer/public/event.php?event=EVENT_ID](https://your-domain.com/receipt-printer/public/event.php?event=EVENT_ID)
-```
+Your event page will then be available at: [https://your-domain.com/receipt-printer/public/event.php?event=EVENT_ID](https://your-domain.com/receipt-printer/public/event.php?event=EVENT_ID)
 
 ## Database Setup
 
@@ -216,11 +212,11 @@ Example:
 user_receipt_printer
 ```
 
-Also create a database user and grant full access to the database.
+Also create a **database user** and **grant full access** to the database.
 
 ### 2. Import database commands
 
-Open **phpMyAdmin**, select your database and insert:
+Open **phpMyAdmin**, select your database and insert the content of:
 
 ```
 web/sql/schema.sql
@@ -318,7 +314,7 @@ The Raspberry Pi client communicates with the web server through two API endpoin
 All API requests require the **API key** sent via HTTP header:
 
 ```
-X-API-Key: YOUR_API_KEY
+X-API-Key: your-secret-api-key
 ```
 
 ### Retrieve new entries
@@ -330,7 +326,9 @@ GET /api/get_entries.php?event=insert-public-id
 Example:
 
 ```
-https://your-domain.com/receipt-printer/api/get_entries.php?event=insert-public-id
+curl "https://your-domain.com/receipt-printer/api/get_entries.php?event=insert-public-id" \
+-H "X-API-Key: your-secret-api-key"
+
 ```
 
 Returns:
@@ -352,23 +350,21 @@ Returns:
 
 ### Report print results
 
+Example request:
 ```
-POST /api/report_print_results.php
-```
-
-Example request body:
-
-```json
-{
+curl -X POST https://your-domain.com/receipt-printer/api/report_print_results.php \
+-H "Content-Type: application/json" \
+-H "X-API-Key: your-secret-api-key" \
+-d '{
   "event": "insert-public-id",
-  "printed_ids": [1,2],
-  "failed": [
-    {
-      "id": 3,
-      "error": "Image too large"
-    }
-  ]
-}
+  "printed_ids": [1],
+  "failed": []
+}'
+```
+
+Response
+```json
+{"success":true}
 ```
 
 ### Rate Limiting
