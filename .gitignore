@@ -29,3 +29,7 @@ Thumbs.db
 # Backup and temporary files
 _backup*
 _tmp*
+
+# Webserver
+web/config/config.php
+web/uploads/*
