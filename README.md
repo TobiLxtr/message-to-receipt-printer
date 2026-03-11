@@ -198,7 +198,10 @@ public_html
    └─ uploads/
 ```
 
-Your event page will then be available at: [https://your-domain.com/receipt-printer/public/event.php?event=EVENT_ID](https://your-domain.com/receipt-printer/public/event.php?event=EVENT_ID)
+Your event page will then be available at: 
+```
+https://your-domain.com/receipt-printer/public/event.php?event=EVENT_ID
+```
 
 ## Database Setup
 
@@ -328,7 +331,6 @@ Example:
 ```
 curl "https://your-domain.com/receipt-printer/api/get_entries.php?event=insert-public-id" \
 -H "X-API-Key: your-secret-api-key"
-
 ```
 
 Returns:
