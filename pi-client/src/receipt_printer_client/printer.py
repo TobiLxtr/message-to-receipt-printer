@@ -222,7 +222,7 @@ class ReceiptPrinter:
 
             self._printer.text("-" * 32 + "\n")
 
-            self._printer.cut()
+            self._printer.cut(mode='PART')
 
         except OSError as e:
             raise PrinterConnectionError(str(e))
