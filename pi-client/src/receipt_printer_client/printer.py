@@ -1,5 +1,6 @@
 # src/receipt_printer_client/printer.py
 
+import textwrap
 from escpos.printer import Network
 
 from receipt_printer_client.config import (
@@ -42,6 +43,20 @@ class ReceiptPrinter:
     def __init__(self) -> None:
         self._printer: Network | None = None
         self._columns: dict[str, int] = {}
+        self._current_font: str = 'a'
+
+    def set(self, **kwargs) -> None:
+        """
+        Wrapper around escpos set() to track printer state.
+        """
+
+        if not self.is_connected():
+            raise PrinterConnectionError("Printer not connected")
+
+        if "font" in kwargs:
+            self._current_font = kwargs["font"]
+
+        self._printer.set(**kwargs)
 
     # --------------------------------------------------
     # Connection handling
@@ -145,6 +160,38 @@ class ReceiptPrinter:
         """Print heart symbol."""
         self.print_raw_symbol("CP932", 0xE9)
 
+    def print_wrapped_text_with_hearts(self, text: str) -> None:
+        """
+        Print wrapped text and replace '<3' tokens with printer heart symbols.
+        """
+
+        if not self.is_connected():
+            raise PrinterConnectionError("Printer not connected")
+
+        columns = self._columns[self._current_font]
+
+        wrapped_lines = textwrap.wrap(
+            text,
+            width=columns,
+            break_long_words=True,
+            break_on_hyphens=False,
+            replace_whitespace=False,
+        )
+
+        for line in wrapped_lines:
+
+            parts = line.split("<3")
+
+            for i, part in enumerate(parts):
+
+                if part:
+                    self._printer.text(part)
+
+                if i < len(parts) - 1:
+                    self.print_heart()
+
+            self._printer.ln()
+
     # --------------------------------------------------
     # Test helpers
     # --------------------------------------------------
@@ -205,21 +252,23 @@ class ReceiptPrinter:
             name = sanitize_name(entry.get("name", "Anonymous"))
             text = sanitize_text(entry.get("text", ""))
 
-            self._printer.set(density=8)
+            self.set(density=8)
 
-            self._printer.set(align="center", bold=True)
+            self.set(align="center", bold=True)
             self._printer.text("WEBSITE GUESTBOOK\n")
             self._printer.text("-" * 32 + "\n\n")
 
-            self._printer.set(align="left", bold=False)
+            self.set(align="left", bold=False)
 
             self._printer.text(f"ID: {entry_id}\n")
             self._printer.text(f"Time: {created_at}\n")
             self._printer.text(f"From: {name}\n\n")
 
-            self._printer.block_text(text)
+            #self._printer.block_text(text)
+            self.print_wrapped_text_with_hearts(text)
             self._printer.ln(2)
 
+            self.set(align="center", bold=True)
             self._printer.text("-" * 32 + "\n")
 
             self._printer.cut(mode='PART')
