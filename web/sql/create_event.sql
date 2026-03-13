@@ -1,4 +1,4 @@
--- Insert an event, after databse and tables (schema.sql) were created
+-- Insert an event, after the database and tables (schema.sql) were created
 INSERT INTO events
 (public_id, slug, name, type, created_at)
 VALUES

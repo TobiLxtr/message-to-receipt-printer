@@ -13,8 +13,7 @@ The project is designed for use cases such as:
 Messages submitted through a web interface are stored in a databse on a server and retrieved by a Raspberry Pi client.  
 The Raspberry Pi then prints them on a thermal receipt printer locally.
 
-The project is currently focused on the printer client and **work-in-progress**.  
-The web server component will be added later.
+The project is currently **work-in-progress**.
 
 # Hardware
 

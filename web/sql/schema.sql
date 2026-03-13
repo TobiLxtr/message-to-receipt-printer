@@ -1,4 +1,4 @@
---  Run for example in phphMyAdmin
+--  Create tables. Run it in phphMyAdmin after the database was created.
 CREATE TABLE events (
 
     id INT AUTO_INCREMENT PRIMARY KEY,
