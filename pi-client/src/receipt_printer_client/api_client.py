@@ -1,59 +1,110 @@
 # src/receipt_printer_client/api_client.py
 
-import json
-from typing import List, Dict, Any
+import requests
+from typing import Dict, List, Any
 
+from receipt_printer_client.config import (
+    API_BASE_URL,
+    API_KEY,
+    EVENT_PUBLIC_ID,
+)
+
+HEADERS = {
+    "X-API-Key": API_KEY,
+    "Content-Type": "application/json",
+}
+
+
+# --------------------------------------------------
+# Fetch entries
+# --------------------------------------------------
 
 def fetch_new_entries() -> Dict[str, Any]:
     """
-    Simulate fetching new guestbook entries from the API.
+    Retrieve new entries from the API.
 
-    Later this function can be replaced with a real HTTP GET request.
+    Raises
+    ------
+    RuntimeError
+        If the request fails or the response is invalid.
     """
 
-    # --- Simulated API response ---
-    raw_json = """
-    {
-        "type": "empty",
-        "entries": [
-            {
-                "id": "000001",
-                "created_at": "2026-03-02T18:48:50Z",
-                "name": "Joe Public",
-                "text": "Hello world! ☺️❤️😄😘💔"
-            }
-        ]
-    }
-    """
+    url = f"{API_BASE_URL}/api/get_entries.php"
 
-    data = json.loads(raw_json)
+    try:
+
+        response = requests.get(
+            url,
+            headers=HEADERS,
+            params={"event": EVENT_PUBLIC_ID},
+            timeout=10,
+        )
+
+        response.raise_for_status()
+
+    except requests.exceptions.RequestException as e:
+
+        raise RuntimeError(
+            f"API request failed while fetching entries: {e}"
+        ) from e
+
+    try:
+
+        data = response.json()
+
+    except ValueError as e:
+
+        raise RuntimeError(
+            f"Failed to parse API JSON response from {url}"
+        ) from e
+
+    if not isinstance(data, dict):
+
+        raise RuntimeError(
+            "Invalid API response format (expected JSON object)"
+        )
+
     return data
 
 
-def report_print_results(printed_ids: List[str], failed: List[Dict[str, str]]) -> None:
-    """
-    Report printing results to the API.
+# --------------------------------------------------
+# Report print results
+# --------------------------------------------------
 
-    Parameters
-    ----------
-    printed_ids : list[str]
-        IDs of entries that were successfully printed.
-
-    failed : list[dict]
-        Entries that failed to print with error messages.
+def report_print_results(
+    printed_ids: List[str],
+    failed: List[Dict[str, Any]],
+) -> None:
     """
+    Send printing results back to the API.
+
+    Raises
+    ------
+    RuntimeError
+        If the request fails.
+    """
+
+    url = f"{API_BASE_URL}/api/report_print_results.php"
 
     payload = {
+        "event": EVENT_PUBLIC_ID,
         "printed_ids": printed_ids,
-        "failed": failed
+        "failed": failed,
     }
 
-    # Simulated API request
-    print("Reporting print results to API:")
-    print(json.dumps(payload, indent=4))
-    #print(payload)
+    try:
 
-    # Later replaced with real HTTP request
-    #
-    # response = requests.post(API_URL, json=payload)
-    # response.raise_for_status()
+        response = requests.post(
+            url,
+            headers=HEADERS,
+            json=payload,
+            timeout=10,
+        )
+
+        response.raise_for_status()
+
+    except requests.exceptions.RequestException as e:
+
+        raise RuntimeError(
+            f"API request failed while reporting results: {e}"
+        ) from e
